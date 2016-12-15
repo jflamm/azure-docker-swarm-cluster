@@ -1,9 +1,9 @@
 # Set environment variables (if they're not defined yet)
-export RESOURCE_GROUP?=swarm-demo
-export LOCATION?=northeurope
-export AZURE_CLI?=az
-export MASTER_COUNT?=1
-export AGENT_COUNT?=3
+export RESOURCE_GROUP=swarm-demo
+export LOCATION=southcentralus
+export AZURE_CLI=az
+export MASTER_COUNT=1
+export AGENT_COUNT=3
 export MASTER_FQDN=$(RESOURCE_GROUP)-master0.$(LOCATION).cloudapp.azure.com
 export VMSS_NAME=agent
 
@@ -36,8 +36,9 @@ destroy-cluster:
 
 # Create a resource group and deploy the cluster resources inside it
 deploy-cluster:
-	-$(AZURE_CLI) resource group create --name $(RESOURCE_GROUP) --location $(LOCATION) --output table 
-	$(AZURE_CLI) resource group deployment create --template-file-path cluster-template.json --parameters-file-path parameters.json --resource-group $(RESOURCE_GROUP) --name cli-deployment-$(LOCATION) --output table
+	-$(AZURE_CLI) group create --name $(RESOURCE_GROUP) --location $(LOCATION) --output table
+	$(AZURE_CLI) group deployment create --template-file cluster-template.json --parameters "@parameters.json" --resource-group $(RESOURCE_GROUP) --name cli-deployment-$(LOCATION) --output table
+#   $(AZURE_CLI) group deployment create --template-file cluster-template.json --parameters parameters.json --resource-group $(RESOURCE_GROUP) --name cli-deployment-$(LOCATION) --output table
 
 # Cleanup parameters
 clean:
