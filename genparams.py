@@ -22,7 +22,7 @@ params = {
         "value": b64encode(open("cloud-config-agent.yml", "r").read())
     },
     "saType": {
-        "value": "Premium_LRS"
+        "value": "Standard_LRS"
     }
 }
 

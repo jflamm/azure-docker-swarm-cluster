@@ -5,6 +5,7 @@ import json
 RESOURCE_GROUP = 'swarm-demo'
 LOCATION = 'eastus'
 MASTER_FQDN = RESOURCE_GROUP + '-master0.' + LOCATION + '.cloudapp.azure.com'
+LB_FQDN = RESOURCE_GROUP + '-agent' + '-lb.' + LOCATION + '.cloudapp.azure.com'
 VMSS_NAME = 'agent'
 CLUSTER_KEY='cluster'
 
@@ -12,14 +13,18 @@ CLUSTER_KEY='cluster'
 def ssh(ctx):
     with open('cluster-template.json') as json_data:
         d = json.load(json_data)
+        print('Addresses:')
         print('master: {}:22'.format(MASTER_FQDN))
         start_port = d['variables']['natStartPort']
         end_port = d['variables']['natEndPort']
         print('agents: {}:{}-{}'.
-              format(MASTER_FQDN, start_port, end_port))
+              format(LB_FQDN, start_port, end_port))
         user = d['parameters']['adminUsername']['defaultValue']
-        print('agent0: ssh {}@{} -i {}.pem -p {}'.
-              format(user, MASTER_FQDN, CLUSTER_KEY, start_port))
+        print('\nTo connect:')
+        print('master0: ssh {}@{} -i {}.pem'.
+              format(user, MASTER_FQDN, CLUSTER_KEY))
+        print('agent0:  ssh {}@{} -i {}.pem -p {}'.
+              format(user, LB_FQDN, CLUSTER_KEY, start_port))
 
 
 @task

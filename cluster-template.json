@@ -28,12 +28,7 @@
         "description": "Master instance size"
       },
       "allowedValues": [
-        "Standard_DS1_v2",
-        "Standard_DS2_v2",
-        "Standard_DS3_v2",
-        "Standard_DS4_v2",
-        "Standard_F1",
-        "Standard_F2"
+        "Standard_DS1_v2"
       ]
     },
     "agentPrefix": {
@@ -47,7 +42,7 @@
       },
       "defaultValue": 2,
       "minValue": 1,
-      "maxValue": 100
+      "maxValue": 10
     },
     "agentSize": {
       "type": "string",
@@ -56,12 +51,7 @@
         "description": "Agent instance size"
       },
       "allowedValues": [
-        "Standard_DS1_v2",
-        "Standard_DS2_v2",
-        "Standard_DS3_v2",
-        "Standard_DS4_v2",
-        "Standard_F1",
-        "Standard_F2"
+        "Standard_DS1_v2"
       ]
     },
     "adminUsername": {
@@ -110,8 +100,7 @@
       "type": "string",
       "defaultValue": "Standard_LRS",
       "allowedValues": [
-        "Standard_LRS",
-        "Premium_LRS"
+        "Standard_LRS"
       ]
     }
   },
@@ -468,44 +457,6 @@
           }
         ],
         "loadBalancingRules": [
-          {
-            "name": "httpRule",
-            "properties": {
-              "frontendIPConfiguration": {
-                "id": "[concat(resourceId('Microsoft.Network/loadBalancers',parameters('agentPrefix')),'/frontendIPConfigurations/loadBalancerFrontEnd')]"
-              },
-              "backendAddressPool": {
-                "id": "[concat(resourceId('Microsoft.Network/loadBalancers',parameters('agentPrefix')),'/backendAddressPools/agentPool')]"
-              },
-              "protocol": "Tcp",
-              "frontendPort": 80,
-              "backendPort": 80,
-              "enableFloatingIP": false,
-              "idleTimeoutInMinutes": 5,
-              "probe": {
-                "id": "[concat(resourceId('Microsoft.Network/loadBalancers',parameters('agentPrefix')),'/probes/tcpProbe')]"
-              }
-            }
-          },
-          {
-            "name": "alternateHttpRule",
-            "properties": {
-              "frontendIPConfiguration": {
-                "id": "[concat(resourceId('Microsoft.Network/loadBalancers',parameters('agentPrefix')),'/frontendIPConfigurations/loadBalancerFrontEnd')]"
-              },
-              "backendAddressPool": {
-                "id": "[concat(resourceId('Microsoft.Network/loadBalancers',parameters('agentPrefix')),'/backendAddressPools/agentPool')]"
-              },
-              "protocol": "Tcp",
-              "frontendPort": 81,
-              "backendPort": 81,
-              "enableFloatingIP": false,
-              "idleTimeoutInMinutes": 5,
-              "probe": {
-                "id": "[concat(resourceId('Microsoft.Network/loadBalancers',parameters('agentPrefix')),'/probes/tcpProbe')]"
-              }
-            }
-          }
         ],
         "probes": [
           {
@@ -538,58 +489,6 @@
               "sourceAddressPrefix": "*",
               "protocol": "Tcp",
               "destinationPortRange": "22",
-              "access": "Allow",
-              "direction": "Inbound",
-              "sourcePortRange": "*",
-              "destinationAddressPrefix": "*"
-            }
-          },
-          {
-            "name": "default-allow-http",
-            "properties": {
-              "priority": 1001,
-              "sourceAddressPrefix": "*",
-              "protocol": "Tcp",
-              "destinationPortRange": "80",
-              "access": "Allow",
-              "direction": "Inbound",
-              "sourcePortRange": "*",
-              "destinationAddressPrefix": "*"
-            }
-          },
-          {
-            "name": "default-allow-alternate-http",
-            "properties": {
-              "priority": 1002,
-              "sourceAddressPrefix": "*",
-              "protocol": "Tcp",
-              "destinationPortRange": "81",
-              "access": "Allow",
-              "direction": "Inbound",
-              "sourcePortRange": "*",
-              "destinationAddressPrefix": "*"
-            }
-          },
-          {
-            "name": "default-allow-https",
-            "properties": {
-              "priority": 1003,
-              "sourceAddressPrefix": "*",
-              "protocol": "Tcp",
-              "destinationPortRange": "443",
-              "access": "Allow",
-              "direction": "Inbound",
-              "sourcePortRange": "*",
-              "destinationAddressPrefix": "*"
-            }
-          },
-          {
-            "name": "default-allow-managment-http",
-            "properties": {
-              "priority": 1004,
-              "sourceAddressPrefix": "*",
-              "protocol": "Tcp",
-              "destinationPortRange": "8080",
               "access": "Allow",
               "direction": "Inbound",
               "sourcePortRange": "*",
