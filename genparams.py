@@ -16,7 +16,7 @@ params = {
         "value": b64encode(open("cloud-config-master.yml", "r").read())
     },
     "agentCount": {
-        "value": int(environ.get('AGENT_COUNT',2))
+        "value": int(environ.get('AGENT_COUNT', 1))
     },
     "agentCustomData": {
         "value": b64encode(open("cloud-config-agent.yml", "r").read())

@@ -10,20 +10,23 @@ VMSS_NAME = 'agent'
 CLUSTER_KEY='cluster'
 
 @task
-def ssh(ctx):
+def ssh(ctx, agent=False):
     with open('cluster-template.json') as json_data:
         d = json.load(json_data)
-        print('Addresses:')
-        print('master: {}:22'.format(MASTER_FQDN))
+        user = d['parameters']['adminUsername']['defaultValue']
         start_port = d['variables']['natStartPort']
         end_port = d['variables']['natEndPort']
+
+        print('Addresses:')
+        print('master: {}:22'.format(MASTER_FQDN))
+
         print('agents: {}:{}-{}'.
               format(LB_FQDN, start_port, end_port))
-        user = d['parameters']['adminUsername']['defaultValue']
+
         print('\nTo connect:')
-        print('master0: ssh {}@{} -i {}.pem'.
+        print('master0: ssh -o StrictHostKeyChecking=no {}@{} -i {}.pem'.
               format(user, MASTER_FQDN, CLUSTER_KEY))
-        print('agent0:  ssh {}@{} -i {}.pem -p {}'.
+        print('agent0:  ssh -o StrictHostKeyChecking=no {}@{} -i {}.pem -p {}'.
               format(user, LB_FQDN, CLUSTER_KEY, start_port))
 
 

@@ -74,11 +74,14 @@ packages:
   - fail2ban
   - curl
   - python-bottle
+  - apt-file
 
 runcmd:
   - usermod -G docker cluster
-  - systemctl enable docker
-  - systemctl start docker
+  - systemctl enable nvidia-docker
+  - systemctl start nvidia-docker
   - systemctl enable swarm-helper
   - systemctl start swarm-helper
+  - sudo mkdir /fathom
+  - sudo mount -t cifs //swarmdemostore.file.core.windows.net/swarm-demo-fileshare /fathom -o vers=3.0,user=swarmdemostore,password=hFlNNLV5HavxqyMd8IlVutRpScHxyPzBpN/y3oqFEFIQ5ir9FGZGxnwOKSUbNQAL7/zS0RDI2S92qDEovm+Q5A==,dir_mode=0777,file_mode=0777
   #- reboot

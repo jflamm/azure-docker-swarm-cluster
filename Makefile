@@ -1,6 +1,6 @@
 # Set environment variables (if they're not defined yet)
 export RESOURCE_GROUP=swarm-demo
-export LOCATION=southcentralus
+export LOCATION=eastus
 export AZURE_CLI=az
 export MASTER_COUNT=1
 export AGENT_COUNT=3

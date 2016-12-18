@@ -40,18 +40,19 @@
       "metadata": {
         "description": "Number of agent VM instances (100 or less)."
       },
-      "defaultValue": 2,
+      "defaultValue": 1,
       "minValue": 1,
       "maxValue": 10
     },
     "agentSize": {
       "type": "string",
-      "defaultValue": "Standard_DS1_v2",
+      "defaultValue": "Standard_NC6",
       "metadata": {
         "description": "Agent instance size"
       },
       "allowedValues": [
-        "Standard_DS1_v2"
+        "Standard_DS1_v2",
+        "Standard_NC6"
       ]
     },
     "adminUsername": {
