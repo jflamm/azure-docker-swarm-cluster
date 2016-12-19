@@ -1,0 +1,13 @@
+---
+job:
+  basedir: /fathom
+  input: tensorflow/input02
+  model: /fathom/tensorflow/model01
+  ncpus: 3
+  tasks:
+    -
+      input: tensorflow/input01
+    -
+      input: tensorflow/input02
+    -
+      input: tensorflow/input03

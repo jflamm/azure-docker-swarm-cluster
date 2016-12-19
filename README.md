@@ -1,53 +1,48 @@
-# azure-docker-swarm-cluster
+# Fathom GPU cluster
 
-A dynamically resizable Docker Swarm cluster for Azure:
-
-<iframe src="https://livestream.com/accounts/16154575/events/6354092/player?width=560&amp;height=315&amp;autoPlay=true&amp;mute=false" frameborder="0" scrolling="auto" allowfullscreen="" width="560" height="315" allowtransparency="true"></iframe>
+A Docker cluster to run Tensorflow jobs.  This project is derived from rcarmo/azure-docker-swarm-cluster.
 
 ## What
 
-This is a barebones Azure Resource Manager template that automatically deploys a [Docker][d] Swarm cluster atop Ubuntu 16.04. This cluster has 1-5 master VMs and a VM scaleset for workers/agents, plus the required network infrastructure:
+This builds upon a basic Azure Resource Manager template that automatically deploys a [Docker][d] Swarm cluster atop Ubuntu 16.04. This cluster has 1 master VMs and a VM scaleset for workers/agents, plus the required network infrastructure.  The VMs in the scaleset are provisioned with Nvidia drivers, Nvidia-docker plugin, and an Azure fileshare is mounted at /fathom.  Upon running a job, a docker image in build and the containers are loaded and run.
 
-![Cluster diagram](generic-cluster.png) 
+TODO: There are some path assumptions regarding the locations of the fileshare and names for the scripts:
 
-The key aspect of this template is that _you can add and remove agents at will_ simply by resizing the VM scaleset - the cluster comes with a few (very simple) helper scripts that allow nodes to join and leave the swarm as they are created/destroyed. 
+container.sh must be in /fathom/tensorflow
+test_run.py must be in /fathom/tensorflow
+jobs.yml must be in /fathom/jobs
+
+TODO: With modest additional _you can add and remove agents at will_ simply by resizing the VM scaleset.  VMs should be deallocated upon job completion and then restarted and scaled to meet requirements of new job.
+TODO: Mounting of fileshare needs to be put into script to execute on reboot. Now it is only in cloud-init.
+TODO: Upon job completion signal shutdown and deallocation of VMs.
 
 ## Why
 
-This was originally built as [a barebones cluster template](http://taoofmac.com/space/blog/2016/08/07/2200) (for generic services that take advantage of dynamic scaling) and tweaked to show how to provision `cloud-init` scripts, VM scalesets and other ARM templating features.
+The GPU infrasture is designed to run a single tensorflow container on each GPU-enabled VM to parallelize running of experiments.
 
 ## How
 
-* `make keys` - generates an SSH key for provisioning
-* `make params` - generates ARM template parameters
-* `make deploy-cluster` - deploys cluster resources and pre-provisions Docker on all machines
-* `make deploy-monitor` - deploys a Swarm monitor container on `http://master0:8080`
-* `make deploy-replicated-service` - deploys a simple web service onto the Swarm cluster (8 replicas)
-* `make deploy-global-service` - deploys a simple web service onto the Swarm cluster (one container per node)
-* `make scale-service-<number>` - scales the replicated service to `<number>` instances, i.e., `make scale-service-10` will resize it (up or down) to 10 containers
-* `make list-vmss` - lists all worker VMs
-* `make scale-vmss-<number>` - scales the worker VM scale set to `<number>` instances, i.e., `make scale-10` will resize it (up or down) to 10 VMs
-* `make stop-vmss` - stops all worker VMs
-* `make start-vmss` - starts all worker VMs
-* `make ssh-master` - opens an SSH session to `master0`
-* `make tail-helper` - opens an SSH session to `master0` and tails the `swarm-helper` log
-* `make list-endpoints` - list DNS aliases
-* `make destroy-cluster` - destroys the entire cluster
+* `inv keys` - generates an SSH key for provisioning
+* `inv params job_spec.json` - generates ARM template parameters, number of cpus are derived from job yaml file.
+* `inv ssh [-m] [-a]` - runs ssh to connect to master or agent VMs
+* `make stop` - stops all worker VMs
+* `make deallocate` - deallocates all worker VMs (also stops
+* `make restart` - restarts all worker VMs
+* `make clean` - cleans up key files
+
 
 ## Recommended Sequence
 
-    az login
-    make keys
-    make params
-    make deploy-cluster
-    # Go to the Azure portal and check the deployment progress
+    create a yaml job description file (default: jobs.yml)
+     
+    inv deploy
     
-    # now deploy the Swarm monitor UI
-    make deploy-monitor
-    # Do a make endpoints to check the FQDNs and open a browser to the master FQDN, port 8080 to see the Swarm visualizer
-    make endpoints
+    # You can go to the Azure portal and check the deployment progress
     
-    # Now deploy the test service and watch as containers are loaded and run
+    # now run the job
+    inv run
+    
+    # You can deallocate the VMs
     make deploy-replicated-service
     # Open the agent-lb endpoint in a browser, refresh to hit a different node (from outside Azure, Swarm is still quirky)
     make list-endpoints
@@ -74,16 +69,10 @@ This was originally built as [a barebones cluster template](http://taoofmac.com/
 
 ## Requirements
 
+* Azure account which must be logged into using MFA
+* Fileshare expected to be in resource group "swarm-demo-storage"
 * [Python][p]
 * The new [Azure CLI](https://github.com/Azure/azure-cli) (`pip install -U -r requirements.txt` will install it)
-* (Optional) `make` (you can just read through the `Makefile` and type the commands yourself)
-* (Optional) a local Docker installation to rebuild the bundled test service (see the aptly named `test-service` folder)
-
-## Development History
-
-This was originally much more reliant on [Python][p], since the scripts used to provision the Swarm cluster were taken out of another application to save time.
-
-However, and since [az](https://github.com/Azure/azure-cli) is now generally available, and in order to be able to use this project as a teaching aid that an unexperienced person could read through and understand in one sitting, things were simplified a bit more.
 
 ## Internals
 
@@ -107,13 +96,10 @@ There are several things that can be done to improve upon this:
 
 * Ensure this works with multiple masters (cursory testing suggests it works just fine, although it can be fiddly for agents to re-try connecting to up to 5 possible masters, etc.)
 * Strengthen the token exchange mechanism (adding SSL and/or a shared `nonce` to the registration/draining URLs is left as an exercise to the reader)
-* Find ways to nudge Swarm into re-balancing the load between nodes (there are already multiple approaches for this in the [Docker][d] issue list - (re)tagging might be the simplest)
-* Stop instances and leave their resources allocated instead of destroying them completely upon rescaling, for faster scale-ups
-* Turn on CPU-based auto-scaling in Azure (again, it's off largely because this is simpler to understand)
 
 ## Disclaimers
 
-Keep in mind that this was written for conciseness and ease of understanding -- you can use this as the basis for rolling out a production environment, but _only_ after adding some error-checking.
+There's very little error checking.
 
 The [Docker][d] way of achieving cluster self-provisioning relies on service-specific containers baked into their cloud images (and does not seem to allow for dynamically adding or removing nodes), so the approach in this repo is not canon - but it might be more interesting (and easier to expand upon) for people learning how to use [Docker][d] Swarm. 
 
