@@ -50,8 +50,7 @@ apt:
       keyserver: p80.pool.sks-keyservers.net
       keyid: 58118E89F3A912897C070ADBF76221572C52609D
 
-# We don't need to upgrade the agents'
-#apt_update: true
+apt_update: true
 #apt_upgrade: true
 
 packages:
@@ -65,6 +64,7 @@ packages:
   - gcc
   - make
   - libc-dev
+  - vim
   #- curl
 
 runcmd:

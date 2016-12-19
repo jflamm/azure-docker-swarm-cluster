@@ -108,13 +108,9 @@
   "variables": {
     "diagsName": "[toLower(substring(concat(parameters('masterPrefix'), 'diag',  uniqueString(resourceGroup().id)), 0, 11))]",
     "saName": "[toLower(substring(concat(parameters('masterPrefix'), 'sa',  uniqueString(resourceGroup().id)), 0, 11))]",
-    "saCount": 5,
+    "saCount": 1,
     "saNameArray": [
-      "[concat(toLower(substring(concat(parameters('agentPrefix'), 'sa',  uniqueString(resourceGroup().id)), 0, 11)), '0')]",
-      "[concat(toLower(substring(concat(parameters('agentPrefix'), 'sa',  uniqueString(resourceGroup().id)), 0, 11)), '1')]",
-      "[concat(toLower(substring(concat(parameters('agentPrefix'), 'sa',  uniqueString(resourceGroup().id)), 0, 11)), '2')]",
-      "[concat(toLower(substring(concat(parameters('agentPrefix'), 'sa',  uniqueString(resourceGroup().id)), 0, 11)), '3')]",
-      "[concat(toLower(substring(concat(parameters('agentPrefix'), 'sa',  uniqueString(resourceGroup().id)), 0, 11)), '4')]"
+      "[concat(toLower(substring(concat(parameters('agentPrefix'), 'sa',  uniqueString(resourceGroup().id)), 0, 11)), '0')]"
     ],
     "natStartPort": 50000,
     "natEndPort": 50099,
@@ -289,11 +285,7 @@
           "storageProfile": {
             "osDisk": {
               "vhdContainers": [
-                "[concat('https://', variables('saNameArray')[0], '.blob.core.windows.net/', 'vhds')]",
-                "[concat('https://', variables('saNameArray')[1], '.blob.core.windows.net/', 'vhds')]",
-                "[concat('https://', variables('saNameArray')[2], '.blob.core.windows.net/', 'vhds')]",
-                "[concat('https://', variables('saNameArray')[3], '.blob.core.windows.net/', 'vhds')]",
-                "[concat('https://', variables('saNameArray')[4], '.blob.core.windows.net/', 'vhds')]"
+                "[concat('https://', variables('saNameArray')[0], '.blob.core.windows.net/', 'vhds')]"
               ],
               "name": "osdisk.vhd",
               "caching": "ReadWrite",
