@@ -43,30 +43,12 @@ The GPU infrasture is designed to run a single tensorflow container on each GPU-
     inv run
     
     # You can deallocate the VMs
-    make deploy-replicated-service
-    # Open the agent-lb endpoint in a browser, refresh to hit a different node (from outside Azure, Swarm is still quirky)
-    make list-endpoints
-
-    # Scale the service down
-    make scale-service-4
+    inv deallocate
     
-    # Now scale the VM scale set and watch as new VMs join the cluster
-    make scale-vmss-7
-    # Add more service workers, and watch them spread through the cluster
-    make scale-service-16
-    
-    # Now scale down the VM scale set and watch Swarm coping by re-scheduling workers
-    make scale-vmss-3
-     
-    # Stop (but not de-allocate) worker VMs and watch all containers move to the master (because we have no scheduling rules)
-    make stop-vmss
-    # Now re-start them
-    make start-vmss
-    
-    # Clean up after we're done working
-    make destroy-cluster
+    # To restart the VMs
+    inv restart
 
-
+ 
 ## Requirements
 
 * Azure account which must be logged into using MFA
