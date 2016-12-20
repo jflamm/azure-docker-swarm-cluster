@@ -18,6 +18,25 @@ write_files:
       # signal the master to drain services from our node
       wget -nv -q -O - --retry-connrefused 10 --waitretry 5 http://master0:1337/drain/$HOSTNAME
       docker swarm leave
+  - path: /root/mount-fileshare.sh
+    permissions: 0755
+    content: |
+      #!/bin/bash
+      # Create the fathom mount point if necessary and mount the file share
+      sudo mkdir -p /fathom
+      sudo mount -t cifs //swarmdemostore.file.core.windows.net/swarm-demo-fileshare /fathom -o vers=3.0,user=swarmdemostore,password=hFlNNLV5HavxqyMd8IlVutRpScHxyPzBpN/y3oqFEFIQ5ir9FGZGxnwOKSUbNQAL7/zS0RDI2S92qDEovm+Q5A==,dir_mode=0777,file_mode=0777
+  - path: /etc/systemd/system/fathom-mount.service
+    permissions: 0444
+    content: |
+      [Unit]
+      Description=Mount Fathom file share
+      DefaultDependencies=no
+      Before=multi-user.target
+      [Service]
+      Type=oneshot
+      ExecStart=/root/mount-fileshare.sh
+      [Install]
+      WantedBy=multi-user.target
   - path: /etc/systemd/system/swarm-join.service
     permissions: 0444
     content: |
@@ -69,6 +88,12 @@ packages:
 
 runcmd:
   - usermod -G docker cluster
+  #- sudo mkdir /fathom
+  #- sudo mount -t cifs //swarmdemostore.file.core.windows.net/swarm-demo-fileshare /fathom -o vers=3.0,user=swarmdemostore,password=hFlNNLV5HavxqyMd8IlVutRpScHxyPzBpN/y3oqFEFIQ5ir9FGZGxnwOKSUbNQAL7/zS0RDI2S92qDEovm+Q5A==,dir_mode=0777,file_mode=0777
+  #- sudo echo "sudo mkdir /fathom" >> /home/cluster/.bashrc
+  #- sudo echo "sudo mount -t cifs //swarmdemostore.file.core.windows.net/swarm-demo-fileshare /fathom -o vers=3.0,user=swarmdemostore,password=hFlNNLV5HavxqyMd8IlVutRpScHxyPzBpN/y3oqFEFIQ5ir9FGZGxnwOKSUbNQAL7/zS0RDI2S92qDEovm+Q5A==,dir_mode=0777,file_mode=0777
+  - systemctl enable fathom-mount
+  - systemctl start fathom-mount
   - wget -P /tmp http://us.download.nvidia.com/XFree86/Linux-x86_64/367.57/NVIDIA-Linux-x86_64-367.57.run
   - sudo sh /tmp/NVIDIA-Linux-x86_64-367.57.run --silent
   - wget -P /tmp https://github.com/NVIDIA/nvidia-docker/releases/download/v1.0.0-rc.3/nvidia-docker_1.0.0.rc.3-1_amd64.deb
@@ -79,6 +104,4 @@ runcmd:
   - systemctl start docker
   - systemctl start swarm-leave
   - systemctl start swarm-join
-  - sudo mkdir /fathom
-  - sudo mount -t cifs //swarmdemostore.file.core.windows.net/swarm-demo-fileshare /fathom -o vers=3.0,user=swarmdemostore,password=hFlNNLV5HavxqyMd8IlVutRpScHxyPzBpN/y3oqFEFIQ5ir9FGZGxnwOKSUbNQAL7/zS0RDI2S92qDEovm+Q5A==,dir_mode=0777,file_mode=0777
   #- reboot

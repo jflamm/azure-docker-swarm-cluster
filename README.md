@@ -33,7 +33,7 @@ The GPU infrasture is designed to run a single tensorflow container on each GPU-
 
 ## Recommended Sequence
 
-    create a yaml job description file (default: jobs.yml)
+    create a yaml job description file - there is an example already created (default: jobs.yml)
      
     inv deploy
     
@@ -51,8 +51,9 @@ The GPU infrasture is designed to run a single tensorflow container on each GPU-
  
 ## Requirements
 
-* Azure account which must be logged into using MFA
-* Fileshare expected to be in resource group "swarm-demo-storage"
+* Azure account which must be logged into using MFA - this will happen the first time you run a command.
+* Create a fileshare - in this code it is named "swarmdemoshare" - you will need to change the lines in cloud-config-agent.yml and cloud-config-master.yml: sudo mount -t cifs //swarmdemostore.file.core.windows.net/swarm-demo-fileshare to reference the fileshare you have created.
+* The resource group in tasks.py (RESOURCE_GROUP) is named "swarm-demo" and the IP names are generated using this name.  If there is another instance running, you will need to change the name of the resource group.
 * [Python][p]
 * The new [Azure CLI](https://github.com/Azure/azure-cli) (`pip install -U -r requirements.txt` will install it)
 

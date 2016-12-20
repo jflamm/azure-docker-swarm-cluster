@@ -2,7 +2,7 @@ import tensorflow as tf
 from tensorflow.python.client import device_lib
 import time
 import sys
-import datetime
+import time
 from os import path
 import yaml
 
@@ -30,9 +30,7 @@ if __name__ == '__main__':
 
     info = '{} CPUs, {} GPUs'.format(len(cpus), len(gpus))
     print(info)
-    now = datetime.datetime.now()
-    filename = path.join(LOG, '{}-{}{}{}{}.txt'.
-                 format(sys.argv[1], now.month, now.hour, now.minute, now.second))
+    filename = path.join(LOG, '%s-p%s.txt'% (time.strftime('%y%m%m%S'), sys.argv[1]))
     with open(filename, 'w') as f:
         f.write(info)
     print('******************************************')

@@ -39,13 +39,15 @@ def ssh(ctx, master=False, agent=False, id=0):
         print('ssh -o StrictHostKeyChecking=no {}@{} -i {}.pem -p {}'.
               format(user, LB_FQDN, CLUSTER_KEY, start_port))
 
+
 @task(help={"run job."})
 def run(ctx, job_spec_file='job.yaml'):
     with open(job_spec_file, 'r') as f:
         job_spec = yaml.load(f)
-        tasks = job_spec['job']['tasks']
-        num_tasks = len(tasks)
-        print('{} tasks'.format(num_tasks))
+        num_tasks = len(job_spec['job']['tasks'])
+        num_machines = job_spec['job']['ncpus']
+        machines = min(num_tasks, num_machines)
+        tasks = job_spec['job']['tasks'][:machines]
     with open('cluster-template.json') as json_data:
         d = json.load(json_data)
         user = d['parameters']['adminUsername']['defaultValue']
@@ -87,6 +89,10 @@ def deploy(ctx, job_spec_file='job.yaml'):
     ctx.run('az group deployment create --template-file cluster-template.json --parameters "@parameters.json" \
              --resource-group {} --name cli-deployment-{} --output table'.format(RESOURCE_GROUP, LOCATION))
 
+@task(aliases=['ls-vms'])
+def ls(ctx):
+    ctx.run('az vmss list-instances --resource-group {} --name {} --output table'.format(RESOURCE_GROUP, VMSS_NAME))
+
 
 @task(aliases=['stop-vms'])
 def stop(ctx):
@@ -99,6 +105,7 @@ def deallocate(ctx):
     print('deallocating \"{}\" vms in \"{}\"'.format(VMSS_NAME, RESOURCE_GROUP))
     ctx.run('az vmss deallocate --resource-group {} --name {} --output table'.format(RESOURCE_GROUP, VMSS_NAME))
 
+
 @task(help={"Delete resources."})
 def delete(ctx):
     print('deleting resource group {}'.format(RESOURCE_GROUP))
@@ -109,6 +116,13 @@ def delete(ctx):
 def restart(ctx):
     print('restarting \"{}\" vms in \"{}\"'.format(VMSS_NAME, RESOURCE_GROUP))
     ctx.run('az vmss restart --resource-group {} --name {} --output table'.format(RESOURCE_GROUP, VMSS_NAME))
+
+@task(aliases=['reimage-vms'])
+def reimage(ctx):
+    print('reimage \"{}\" vms in \"{}\"'.format(VMSS_NAME, RESOURCE_GROUP))
+    ctx.run('az vmss reimage --resource-group {} --name {} --output table'.
+            format(RESOURCE_GROUP, VMSS_NAME))
+    # --custom-data ./custom-data.txt
 
 
 @task(help={"Clean out ssh keys."})
